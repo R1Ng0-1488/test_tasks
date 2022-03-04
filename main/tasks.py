@@ -1,6 +1,13 @@
 from test_tasks.celery import app
 from itertools import zip_longest, chain
 from time import sleep
+from celery.signals import after_task_publish
+
+@after_task_publish.connect
+def update_sent_state(sender=None, headers=None, **kwargs):
+	task = app.tasks.get(sender)
+	backend = task.backend if task else app.backend
+	backend.store_result(headers['id'], None, 'SENT')
 
 @app.task
 def string_reverse(data: str) -> str:

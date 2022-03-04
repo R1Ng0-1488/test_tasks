@@ -29,10 +29,15 @@ class GetTaskSerializer(serializers.Serializer):
 
 
 class GetTaskStatusSerializer(GetTaskSerializer):
-
+	STATUSES = {
+		'SUCCESS': 'SUCCESS',
+		'SENT': 'SENT',
+		'PENDING': 'DOES NOT EXIST'
+ 	}
+	
 	def save(self):
 		task = self.get_task()
-		return task.status
+		return self.STATUSES[task.status]
 
 
 class GetTaskResultSerializer(GetTaskSerializer):
