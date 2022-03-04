@@ -20,6 +20,12 @@ class CreateTaskSerializer(serializers.Serializer):
 
 
 class GetTaskSerializer(serializers.Serializer):
+	STATUSES = {
+		'SUCCESS': 'SUCCESS',
+		'SENT': 'SENT',
+		'PENDING': 'DOES NOT EXIST'
+ 	}
+ 	
 	task_id = serializers.CharField(max_length=100, required=True,
 		error_messages={'blank': 'Не все поля заполнены'})
 
@@ -29,11 +35,6 @@ class GetTaskSerializer(serializers.Serializer):
 
 
 class GetTaskStatusSerializer(GetTaskSerializer):
-	STATUSES = {
-		'SUCCESS': 'SUCCESS',
-		'SENT': 'SENT',
-		'PENDING': 'DOES NOT EXIST'
- 	}
 	
 	def save(self):
 		task = self.get_task()
@@ -44,7 +45,7 @@ class GetTaskResultSerializer(GetTaskSerializer):
 	def validate_task_id(self, value):
 		task = AsyncResult(value)
 		if not task.result:
-			raise serializers.ValidationError(f'Статус задачи: {task.state}')
+			raise serializers.ValidationError(f'Статус задачи: {self.STATUSES[task.status]}')
 		return value
 
 	def save(self):
